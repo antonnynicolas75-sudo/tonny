@@ -1,3 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Financeiro</title>
+
+<style>
+body {
+  font-family: Arial;
+  padding: 20px;
+}
+
+input, button {
+  padding: 10px;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Login</h2>
+
+<input id="user" placeholder="Seu usuário">
+<button onclick="login()">Entrar</button>
+
+<div id="app" style="display:none;">
+
+<h2>Controle Financeiro</h2>
+
+<input id="valor" placeholder="Valor">
+<button onclick="add()">Adicionar</button>
+
+<h3 id="total">Total: 0</h3>
+
+</div>
+
+</div>
+
+<script>
+let usuario = "";
+let total = 0;
+
+// 🔑 LOGIN
+function login() {
+  usuario = document.getElementById("user").value;
+
+  if (!usuario) {
+    alert("Digite um usuário");
+    return;
+  }
+
+  document.getElementById("app").style.display = "block";
+
+  carregar();
+}
+
+// ➕ ADICIONAR
+function add() {
+  let valor = Number(document.getElementById("valor").value);
+  total += valor;
+
+  salvar();
+  atualizar();
+}
+
+// 💾 SALVAR ONLINE
+async function salvar() {
+  await fetch("https://api.jsonbin.io/v3/b/SEU_ID_AQUI", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": "SUA_API_KEY"
+    },
+    body: JSON.stringify({
+      usuario: usuario,
+      total: total
+    })
+  });
+}
+
+// 📥 CARREGAR
+async function carregar() {
+  try {
+    let res = await fetch("https://api.jsonbin.io/v3/b/SEU_ID_AQUI/latest");
+    let data = await res.json();
+
+    if (data.record.usuario === usuario) {
+      total = data.record.total || 0;
+    }
+
+    atualizar();
+
+  } catch {
+    atualizar();
+  }
+}
+
+// 🔄 ATUALIZAR TELA
+function atualizar() {
+  document.getElementById("total").innerText = "Total: " + total;
+}
+</script>
+
+</body>
+</html>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
